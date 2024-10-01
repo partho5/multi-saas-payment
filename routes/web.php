@@ -1,8 +1,13 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome');
+
+require __DIR__.'/payment.php';
+
+
+Route::get('/', [HomeController::class, 'index'])->name('landingPage');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])

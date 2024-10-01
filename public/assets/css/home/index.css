@@ -1,0 +1,23 @@
+
+main{
+    background:
+            linear-gradient(
+                    90deg,
+                    rgba(142, 247, 255, 0.9),
+                    rgba(13, 173, 176, 0.7),
+                    rgba(247, 0, 255, 0.1)
+            ),
+            url("../../../assets/images/bg1.png");
+    background-size: cover; /* Optional: to cover the entire element */
+    background-position: center; /* Center the image */
+
+}
+
+.text-border {
+    color: white; /* Main text color */
+    text-shadow:
+            1px 1px 0 rgba(0, 0, 0, 0.5),
+            -1px -1px 0 rgba(0, 0, 0, 0.5),
+            1px -1px 0 rgba(0, 0, 0, 0.5),
+            -1px 1px 0 rgba(0, 0, 0, 0.5);
+}
