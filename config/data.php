@@ -5,7 +5,7 @@ return [
         'nany-article' => [
             'serviceName'=> 'Nany Article',
             'supportEmail' => 'contact@nanybot.com',
-            'packageUrl' => 'http://localhost:5001/api/v1/public/pricing',
+            'packageUrl' => env('NANY_PAYMENT_API_ENDPOINT_PRICING', ''),
         ],
     ]
 ];

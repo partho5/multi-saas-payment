@@ -39,6 +39,8 @@ class PackageController extends Controller
                 $chosenPackage = $package;
                 $packagePrice = $package['price'];
                 \Session::put('packagePrice', $packagePrice);
+                $packageCode = $package['packageCode'];
+                \Session::put('packageCode', $packageCode);
                 break; // Exit the loop once the package is found
             }
         }
@@ -46,7 +48,6 @@ class PackageController extends Controller
         return view('livewire.packages.show_buy', [
             //'serviceIdentifier' => $serviceIdentifier,
             'serviceName' => $services[$serviceIdentifier]['serviceName'],
-            'chosenPackage' => $chosenPackage,
             'packageData' => $packageData,
             'packageSlug' => $packageSlug,
         ]);

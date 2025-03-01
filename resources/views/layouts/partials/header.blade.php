@@ -7,22 +7,22 @@
                 <span>{{ isset($headerTitle) && $headerTitle ? $headerTitle : env('APP_NAME') }}</span>
             </a>
         </div>
-        <div class="hidden md:flex space-x-4 items-center">
-            <a href="login" class="text-blue-600 hover:text-blue-800 transition">Login</a>
-            <a href="register" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Register</a>
-        </div>
-        <div class="md:hidden">
-            <button id="menu-toggle" class="focus:outline-none">
-                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-                </svg>
-            </button>
-        </div>
+        {{--<div class="hidden space-x-4 items-center">--}}
+            {{--<a href="login" class="text-blue-600 hover:text-blue-800 transition">Login</a>--}}
+            {{--<a href="register" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Register</a>--}}
+        {{--</div>--}}
+        {{--<div class="md:hidden">--}}
+            {{--<button id="menu-toggle" class="focus:outline-none">--}}
+                {{--<svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">--}}
+                    {{--<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>--}}
+                {{--</svg>--}}
+            {{--</button>--}}
+        {{--</div>--}}
     </nav>
-    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-md">
-        <a href="#" class="block px-4 py-2 text-blue-600 hover:bg-blue-100">Login</a>
-        <a href="#" class="block px-4 py-2 bg-blue-600 text-white hover:bg-blue-700">Register</a>
-    </div>
+    {{--<div id="mobile-menu" class="hidden md:hidden bg-white shadow-md">--}}
+        {{--<a href="#" class="block px-4 py-2 text-blue-600 hover:bg-blue-100">Login</a>--}}
+        {{--<a href="#" class="block px-4 py-2 bg-blue-600 text-white hover:bg-blue-700">Register</a>--}}
+    {{--</div>--}}
 </header>
 
 
