@@ -32,7 +32,8 @@ class PayPalController extends Controller
     public function processTransaction(Request $request)
     {
         // dd($request->all());
-        $packagePrice = \Session::get('packagePrice', '');
+        \Session()->put($request->except('_token')); // sets: name, email, phone, packageCode.
+        $packagePrice = \Session::get('packagePrice');
 
         // Explicitly set the currency to ensure it matches your PayPal account
         $this->provider->setCurrency('USD');
@@ -88,21 +89,34 @@ class PayPalController extends Controller
 
             // Extract necessary details from the PayPal response
             $capture = $payment['purchase_units'][0]['payments']['captures'][0];
-            $packageCode = \Session::get('packageCode', '');
+
+            $packageCode = \Session()->get('packageCode');
+            $userId = \Session()->get('userId');
+            $name = \Session()->get('name');
+            $email = \Session()->get('email');
+            $phone = \Session()->get('phone');
+            $creditAmount = \Session()->get('creditAmount');
+
 
             $data = [
-                "userId" => $payment['payer']['payer_id'], // Use Payer ID as the user identifier
+                "userId" => $userId,
                 "packageCode" => $packageCode,
+                "name" => $name,
+                "userEmail" => $email,
+                "phone" => $phone,
+                "creditAmount" => $creditAmount,
                 "transacId" => $payment['id'], // PayPal Transaction ID
                 "amount" => $capture['amount']['value'], // Transaction Amount
                 "currency" => $capture['amount']['currency_code'], // Currency Code
                 "status" => $payment['status'], // Payment Status (COMPLETED, PENDING, etc.)
                 "paymentMethod" => "PayPal", // Payment method (PayPal in this case)
                 "payerEmail" => $payment['payer']['email_address'], // Payer Email
+                "payerId" => $payment['payer']['payer_id'], // Payer Id
                 "payerCountry" => $payment['payer']['address']['country_code'], // Payer Country
                 "referenceId" => $payment['purchase_units'][0]['reference_id'], // Reference ID
                 "createdAt" => $capture['create_time'], // Payment Timestamp
             ];
+            // dd($data);
 
             $response = $this->sendTransaction($data);
             // dd($response);
@@ -125,7 +139,7 @@ class PayPalController extends Controller
 
     public function sendTransaction($data)
     {
-        $url = env('NANY_PAYMENT_API_ENDPOINT_STORE');
+        $url = env('NANY_ARTICLE_PAYMENT_API_ENDPOINT_STORE');
         $token = env('NANY_PAYMENT_API_TOKEN');
 
         // Sending HTTP POST request with Bearer Token

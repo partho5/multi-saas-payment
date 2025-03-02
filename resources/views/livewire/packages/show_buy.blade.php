@@ -8,7 +8,7 @@
 
 @section('content')
     <div class="flex justify-center items-center min-h-screen bg-gray-100">
-        <div class="max-w-lg w-full bg-white rounded-2xl shadow-lg my-16 p-6">
+        <div class="max-w-xl w-full bg-white rounded-2xl shadow-lg my-16 py-4 px-16">
             @php
                 $selectedPackage = collect($packageData)->firstWhere('slug', $packageSlug);
             @endphp
@@ -26,7 +26,7 @@
                 </div>
 
                 <!-- User Info Form -->
-                <form action="{{ route('processTransaction') }}" method="POST" class="mt-8 border border-blue-100  rounded-lg p-4 pt-0">
+                <form action="{{ route('processTransaction') }}" method="POST" class="mt-8 border border-blue-100 rounded-lg p-4 pt-0">
                     <p class="text-center mb-3 -mt-3 text-gray-600 bg-blue-50 border border-blue-100 rounded-lg">
                         <span class="pb-1">Billing Info</span>
                     </p>
@@ -34,7 +34,7 @@
 
                     <!-- User Details -->
                     <div class="space-y-4">
-                        <div class="flex flex-col md:flex-row md:items-center">
+                        <div class="flex flex-col md:flex-row md:items-center mt-8">
                             <label for="name" class="block w-full md:w-1/4 font-medium text-gray-700 mb-1 md:mb-0">Name</label>
                             <div class="w-full md:w-3/4">
                                 <input
@@ -60,6 +60,7 @@
                                         value="{{ old('email', auth()->user()->email ?? '') }}"
                                         class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                                         required
+                                        disabled
                                 />
                             </div>
                         </div>
@@ -80,10 +81,11 @@
                         </div>
                     </div>
 
-                    <input type="hidden" name="packageCode" value="{{ $selectedPackage['packageCode'] }}">
+                    {{--<input type="hidden" name="packageCode" value="{{ $selectedPackage['packageCode'] }}">--}}
+                    <input type="hidden" name="userId" id="userId" value="">
 
                     <!-- Pay Now Button -->
-                    <button type="submit" class="mt-4 relative bg-gradient-to-r from-green-500 to-green-400 hover:from-green-500 hover:to-green-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-emerald-300 group w-full">
+                    <button type="submit" class="mt-12 relative bg-gradient-to-r from-green-500 to-green-400 hover:from-green-500 hover:to-green-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-emerald-300 group w-full">
                         <span class="flex items-center justify-center space-x-2">
                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="none"
                                  viewBox="0 0 20 20">
@@ -132,4 +134,42 @@
 
 @section('js')
     <script src="/assets/js/home/home.js"></script>
+
+    <script>
+        /**
+         * Take URL parameter ?d= and extracts data from it, decode base64. then set to input fields.
+         * */
+
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Get base64 encoded data from URL
+        const encodedData = getQueryParam('d');
+
+        if (encodedData) {
+            try {
+                // Decode Base64
+                const jsonString = atob(encodedData);
+                // Parse JSON
+                const data = JSON.parse(jsonString);
+
+                // Set values to input fields if present
+                if (data.userId) document.getElementById('userId').value = data.userId;
+                if (data.email) document.getElementById('email').value = data.email;
+                if (data.displayName) document.getElementById('name').value = nameToUpperCase(data.displayName);
+            } catch (error) {
+                console.error('Error decoding base64 data:', error);
+            }
+        }
+
+        function nameToUpperCase(name) {
+            return name
+                    .split(' ') // Split by space
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize first letter
+                    .join(' '); // Join words back together
+        }
+    </script>
+
 @endsection
