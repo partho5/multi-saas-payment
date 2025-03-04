@@ -27,7 +27,9 @@ class PackageController extends Controller
         $services = config('data.apps');
         $packageUrl = $services[$serviceIdentifier]['packageUrl'];
         // Fetch JSON from the package URL
-        $packageData = Http::get($packageUrl)->json();
+        $data = Http::get($packageUrl)->json();
+        $packageData = $data['packages'];
+        $serviceAppUrl = $data['appUrl'];
         //dd($packageData);
 
         $chosenPackage = null;
@@ -51,7 +53,7 @@ class PackageController extends Controller
         \Session::put('serviceName', $serviceName);
 
         return view('livewire.packages.show_buy', [
-            //'serviceIdentifier' => $serviceIdentifier,
+            'serviceAppUrl' => $serviceAppUrl,
             'serviceName' => $serviceName,
             'packageData' => $packageData,
             'packageSlug' => $packageSlug,

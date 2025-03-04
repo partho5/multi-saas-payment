@@ -13,7 +13,15 @@
                 $selectedPackage = collect($packageData)->firstWhere('slug', $packageSlug);
             @endphp
 
-            @if($selectedPackage)
+            @if(session('error'))
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4" role="alert">
+                    <strong class="font-bold">Error:</strong>
+                    <span class="block sm:inline">{{ session('error') }}</span>
+                </div>
+            @endif
+
+
+        @if($selectedPackage)
                 <h2 class="text-xl text-gray-800 py-4">
                     Your plan
                     <span class="font-semibold uppercase text-gray-900 bg-yellow-200 border border-gray-400 px-4 py-1 rounded-2xl shadow-lg">{{ $selectedPackage['packageName'] }}</span>
@@ -60,7 +68,6 @@
                                         value="{{ old('email', auth()->user()->email ?? '') }}"
                                         class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                                         required
-                                        disabled
                                 />
                             </div>
                         </div>

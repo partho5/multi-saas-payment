@@ -26,12 +26,17 @@ class PayPalController extends Controller
 
     public function createTransaction()
     {
-        return view('Paypal.payment');
+        return view('paypal.payment');
     }
 
     public function processTransaction(Request $request)
     {
-        // dd($request->all());
+        //dd($request->all());
+
+        if (!$request->userId) {
+            return redirect()->back()->with('error', "The link you entered is invalid or missing some details. If you believe this is a mistake, please contact support. Thank You.");
+        }
+
         \Session()->put($request->except('_token')); // sets: name, email, phone, packageCode.
         $packagePrice = \Session::get('packagePrice');
 
