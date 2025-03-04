@@ -22,13 +22,15 @@
 
 
         @if($selectedPackage)
-                <h2 class="text-xl text-gray-800 py-4">
+                <h2 class="text-xl text-gray-800 py-4 px-4">
                     Your plan
                     <span class="font-semibold uppercase text-gray-900 bg-yellow-200 border border-gray-400 px-4 py-1 rounded-2xl shadow-lg">{{ $selectedPackage['packageName'] }}</span>
                 </h2>
-                <div class="mt-4 flex items-center justify-between">
+                <div class="mt-4 px-4 flex items-center justify-between">
                     <p class="text-gray-500">
-                        In this plan you will get <b>{{ $selectedPackage['credits'] }} credits</b> for just
+                        <span class="inline-block md:hidden">You will get</span>
+                        <span class="hidden md:inline-block">In this plan you will get</span>
+                        <b>{{ $selectedPackage['credits'] }} credits</b> for just
                     </p>
                     <span class="text-3xl font-semibold text-blue-600">${{ $selectedPackage['price'] }}</span>
                 </div>
