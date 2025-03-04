@@ -8,7 +8,7 @@
 
 @section('content')
     <div class="flex justify-center items-center min-h-screen bg-gray-100">
-        <div class="max-w-xl w-full bg-white rounded-2xl shadow-lg my-16 py-4 px-16">
+        <div class="max-w-xl w-full bg-white rounded-2xl shadow-lg my-16 py-4 px-2 md:px-16">
             @php
                 $selectedPackage = collect($packageData)->firstWhere('slug', $packageSlug);
             @endphp
