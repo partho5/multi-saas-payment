@@ -25,13 +25,24 @@ require __DIR__.'/auth.php';
 
 
 
+// One-time payment routes (existing)
 Route::get('create-transaction', [PayPalController::class, 'createTransaction'])->name('createTransaction');
 Route::post('process-transaction', [PayPalController::class, 'processTransaction'])->name('processTransaction');
 Route::get('success-transaction', [PayPalController::class, 'successTransaction'])->name('successTransaction');
 Route::get('cancel-transaction', [PayPalController::class, 'cancelTransaction'])->name('cancelTransaction');
-Route::get('callback', [PayPalController::class, 'callback'])->name('callbackURL');
 
-Route::get('/paypal/subscription', [PayPalController::class, 'createSubscription'])->name('paypal.subscription');
-Route::get('/paypal/success', [PayPalController::class, 'success'])->name('paypal.success');
-Route::get('/paypal/cancel', [PayPalController::class, 'cancel'])->name('paypal.cancel');
+// Subscription-specific routes (new)
+Route::get('success-subscription', [PayPalController::class, 'successSubscription'])->name('successSubscription');
+Route::get('manage-subscription/{subscriptionId}', [PayPalController::class, 'manageSubscription'])->name('manageSubscription');
+Route::post('cancel-subscription/{subscriptionId}', [PayPalController::class, 'cancelSubscription'])->name('cancelSubscription');
+Route::post('suspend-subscription/{subscriptionId}', [PayPalController::class, 'suspendSubscription'])->name('suspendSubscription');
+Route::post('reactivate-subscription/{subscriptionId}', [PayPalController::class, 'reactivateSubscription'])->name('reactivateSubscription');
+
+
+
+//Route::get('/paypal/subscription', [PayPalController::class, 'createSubscription'])->name('paypal.subscription');
+//Route::get('/paypal/success', [PayPalController::class, 'success'])->name('paypal.success');
+//Route::get('/paypal/cancel', [PayPalController::class, 'cancel'])->name('paypal.cancel');
+
+Route::get('/test', [HomeController::class, 'sendMail']);
 

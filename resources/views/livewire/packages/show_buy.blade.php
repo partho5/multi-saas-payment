@@ -88,6 +88,27 @@
                                 />
                             </div>
                         </div>
+
+                        <div class="flex flex-col md:flex-row md:items-center">
+                            <label for="paymentType" class="block w-full md:w-1/4 font-medium text-gray-700 mb-1 md:mb-0">Pay for</label>
+                            <div class="w-full md:w-3/4">
+                                <select
+                                        id="paymentType"
+                                        name="paymentType"
+                                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                        required
+                                >
+                                    <option value="one-time" {{ old('paymentType') == 'one-time' ? 'selected' : '' }}>One-time</option>
+                                    <option value="monthly" {{ old('paymentType') == 'monthly' ? 'selected' : '' }}>Monthly Recurrence</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Hidden Fields for Backend -->
+                        <input type="hidden" id="isRecurring" name="isRecurring" value="{{ old('paymentType') == 'monthly' ? 1 : 0 }}">
+                        <input type="hidden" id="recurringDuration" name="recurringDuration" value=30>
+                        <input type="hidden" name="packageName" value="{{ $selectedPackage['packageName'] }}">
+
                     </div>
 
                     {{--<input type="hidden" name="packageCode" value="{{ $selectedPackage['packageCode'] }}">--}}
@@ -179,6 +200,15 @@
                     .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize first letter
                     .join(' '); // Join words back together
         }
+
+
+
+        document.getElementById('paymentType').addEventListener('change', function () {
+            const isRecurring = this.value === 'monthly' ? 1 : 0;
+            document.getElementById('isRecurring').value = isRecurring;
+            document.getElementById('recurringDuration').value = isRecurring === 0 ? 0 : 30;
+        });
     </script>
+
 
 @endsection

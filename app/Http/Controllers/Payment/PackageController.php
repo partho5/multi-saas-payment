@@ -26,6 +26,19 @@ class PackageController extends Controller
     public function showBuyPackage(Request $request, $serviceIdentifier, $packageSlug){
         $services = config('data.apps');
         $packageUrl = $services[$serviceIdentifier]['packageUrl'];
+        $supportEmail = $services[$serviceIdentifier]['supportEmail'];
+        $contactEmail = $services[$serviceIdentifier]['contactEmail'];
+        $businessAddress = $services[$serviceIdentifier]['businessAddress'];
+        $taxPercent = $services[$serviceIdentifier]['taxPercent'];
+
+        $sessionData = [
+            'supportEmail' => $supportEmail,
+            'contactEmail' => $contactEmail,
+            'businessAddress' => $businessAddress,
+            'taxPercent' => $taxPercent,
+        ];
+        \Session::put($sessionData);
+
         // Fetch JSON from the package URL
         $data = Http::get($packageUrl)->json();
         $packageData = $data['packages'];

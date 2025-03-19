@@ -1,7 +1,7 @@
 <header class="fixed w-full bg-white shadow-md z-10">
     <nav class="flex justify-between items-center p-2">
-        <div class="text-2xl font-bold text-blue-600 ml-4">
-            <a href="{{ $serviceAppUrl }}" class="flex items-center">
+        <div class="text-2xl font-bold text-red-600 ml-4">
+            <a href="/" class="flex items-center">
                 <img src="https://nanybot-landing.s3.us-west-1.amazonaws.com/assets/images/nanybot-logo-128x128.webp" class="w-10 h-10 rounded-full mr-2" alt="NanyBot Logo" />
                 {{--If explicit header title is provided, show it, otherwise show .env/APP_NAME--}}
                 <span>{{ isset($headerTitle) && $headerTitle ? $headerTitle : env('APP_NAME') }}</span>

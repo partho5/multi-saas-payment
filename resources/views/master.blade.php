@@ -15,7 +15,7 @@
 <body>
 
 {{--Views other than homepage may pass headerTitle, So it's optional--}}
-@include('layouts.partials.header', ['headerTitle' => $serviceName ?? null, 'serviceAppUrl' => $serviceAppUrl])
+@include('layouts.partials.header', ['headerTitle' => $serviceName ?? null])
 
 <main class="pt-8">
     @yield('content')
