@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Homepage')</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Add to your master layout file, before closing </body> tag -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="icon" href="https://nanybot-landing.s3.us-west-1.amazonaws.com/assets/images/nanybot-logo-128x128.webp" type="image/webp">
     @yield('css')
     <style>

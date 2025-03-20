@@ -90,7 +90,7 @@
                         </div>
 
                         <div class="flex flex-col md:flex-row md:items-center">
-                            <label for="paymentType" class="block w-full md:w-1/4 font-medium text-gray-700 mb-1 md:mb-0">Pay for</label>
+                            <label for="paymentType" class="block w-full md:w-1/4 font-medium text-gray-700 mb-1 md:mb-0">Payment Type</label>
                             <div class="w-full md:w-3/4">
                                 <select
                                         id="paymentType"
@@ -98,8 +98,8 @@
                                         class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                                         required
                                 >
-                                    <option value="one-time" {{ old('paymentType') == 'one-time' ? 'selected' : '' }}>One-time</option>
-                                    <option value="monthly" {{ old('paymentType') == 'monthly' ? 'selected' : '' }}>Monthly Recurrence</option>
+                                    <option value="one-time" {{ old('paymentType') == 'one-time' ? 'selected' : '' }}>One-Time Payment</option>
+                                    <option value="monthly" {{ old('paymentType') == 'monthly' ? 'selected' : '' }}>Auto-Renew Subscription</option>
                                 </select>
                             </div>
                         </div>

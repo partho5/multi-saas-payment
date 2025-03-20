@@ -33,7 +33,7 @@ Route::get('cancel-transaction', [PayPalController::class, 'cancelTransaction'])
 
 // Subscription-specific routes (new)
 Route::get('success-subscription', [PayPalController::class, 'successSubscription'])->name('successSubscription');
-Route::get('manage-subscription/{subscriptionId}', [PayPalController::class, 'manageSubscription'])->name('manageSubscription');
+Route::get('{serviceIdentifier}/manage-subscription/{subscriptionId}', [PayPalController::class, 'manageSubscription'])->name('manageSubscription');
 Route::post('cancel-subscription/{subscriptionId}', [PayPalController::class, 'cancelSubscription'])->name('cancelSubscription');
 Route::post('suspend-subscription/{subscriptionId}', [PayPalController::class, 'suspendSubscription'])->name('suspendSubscription');
 Route::post('reactivate-subscription/{subscriptionId}', [PayPalController::class, 'reactivateSubscription'])->name('reactivateSubscription');

@@ -13,5 +13,5 @@ return [
     ],
 
     'mail_sending_api' => 'https://datamatric.com/api/mail/nany/send',
-    'mail_sending_api_token' => '8f0a2e0bfb01c3da76e7',
+    'mail_sending_api_token' => env('mail_sending_api_token'),
 ];

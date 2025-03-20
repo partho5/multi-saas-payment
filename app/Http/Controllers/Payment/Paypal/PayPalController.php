@@ -307,6 +307,7 @@ class PayPalController extends Controller
 
         // Get subscription details
         $subscription = $this->provider->showSubscriptionDetails($subscriptionId);
+        //dd($subscription);
 
         if (!isset($subscription['id'])) {
             return redirect()
@@ -352,7 +353,7 @@ class PayPalController extends Controller
         $response = $this->sendTransaction($data);
 
         // save subscription data, will be needed to manage/cancel/suspend subscription
-        $subscriptionId = $this->saveSubscription($data);
+        $subId = $this->saveSubscription($data);
 
         // call api to send mail
         $this->sendPaymentInvoiceMail($data);
@@ -386,59 +387,135 @@ class PayPalController extends Controller
         return response()->json($response->json(), $response->status());
     }
 
-    public function manageSubscription($subscriptionId)
+    public function manageSubscription($serviceIdentifier, $subscriptionId, Request $request)
     {
-        // Get subscription details
-        $subscription = $this->provider->showSubscriptionDetails($subscriptionId);
+        // Get subscription from database
+        $subscription = Subscription::where('transac_id', $subscriptionId)->firstOrFail();
 
-        if (!isset($subscription['id'])) {
+        // Get latest details from PayPal
+        $paypalSubscription = $this->provider->showSubscriptionDetails($subscriptionId);
+        //return $paypalSubscription;
+
+        if (!isset($paypalSubscription['id'])) {
             return redirect()
                 ->route('subscriptions')
-                ->with('error', 'Failed to retrieve subscription details.');
+                ->with('error', 'PayPal could not find your subscription details.');
         }
 
-        return view('paypal.manage-subscription', ['subscription' => $subscription]);
+        // Update subscription status if needed
+        if ($subscription->status !== $paypalSubscription['status']) {
+            $subscription->status = $paypalSubscription['status'];
+            $subscription->is_active = in_array($paypalSubscription['status'], ['ACTIVE', 'APPROVAL_PENDING']);
+            $subscription->save();
+        }
+
+        //return ($paypalSubscription);
+
+
+        $subscriptionData = [
+            "packageName" => $request->input('packageName'),
+
+            "status" => $paypalSubscription['status'], // ACTIVE or other values
+            "status_update_time" => $paypalSubscription['status_update_time'],
+            "transac_id" => $paypalSubscription['id'],
+            "plan_id" => $paypalSubscription['plan_id'],
+            "start_time" => $paypalSubscription['start_time'],
+            "quantity" => $paypalSubscription['quantity'],
+            "shipping_amount" => $paypalSubscription['shipping_amount']['value'], // Extracting value
+            "shipping_currency" => $paypalSubscription['shipping_amount']['currency_code'], // Extracting currency code
+            "subscriber_email" => $paypalSubscription['subscriber']['email_address'],
+            "subscriber_name" => $paypalSubscription['subscriber']['name']['given_name'] . " " . $paypalSubscription['subscriber']['name']['surname'],
+            "billing_info" => [
+                "outstanding_balance" => $paypalSubscription['billing_info']['outstanding_balance']['value'],
+                "billing_currency" => $paypalSubscription['billing_info']['outstanding_balance']['currency_code'],
+                "last_payment_amount" => $paypalSubscription['billing_info']['last_payment']['amount']['value'],
+                "last_payment_currency" => $paypalSubscription['billing_info']['last_payment']['amount']['currency_code'],
+                "next_billing_time" => $paypalSubscription['billing_info']['next_billing_time'] ?? null,
+                "failed_payments_count" => $paypalSubscription['billing_info']['failed_payments_count'],
+                "cycle_executions" => $paypalSubscription['billing_info']['cycle_executions']
+            ],
+            "create_time" => $paypalSubscription['create_time'],
+            "update_time" => $paypalSubscription['update_time'],
+            "plan_overridden" => $paypalSubscription['plan_overridden'],
+            "links" => $paypalSubscription['links'],
+            // Adding calculated defaults
+            "amount" => $paypalSubscription['billing_info']['last_payment']['amount']['value'], // Using last payment as amount
+            "currency" => $paypalSubscription['billing_info']['last_payment']['amount']['currency_code'], // Currency from last payment
+            "is_active" => $paypalSubscription['status'] === "ACTIVE", // boolean for active status
+            "next_billing_date" => $paypalSubscription['billing_info']['next_billing_time'] ?? null, // Next billing date
+        ];
+        // dd($subscriptionData);
+
+
+        // Convert to a Laravel Collection or object if needed
+        $subscriptionData = (object) $subscriptionData; // or use collect($paypalSubscription) for a Collection
+
+        return view('paypal.manage-subscription', ['subscription' => $subscriptionData]);
     }
 
     public function cancelSubscription(Request $request, $subscriptionId)
     {
         $reason = $request->input('reason', 'Canceled by user');
 
-        // Cancel the subscription
+        // Cancel the subscription in PayPal
         $response = $this->provider->cancelSubscription($subscriptionId, $reason);
 
-        // Update subscription status in your database
-        // ... your code to update subscription status ...
+        // Update subscription status in database
+        $subscription = Subscription::where('transac_id', $subscriptionId)->firstOrFail();
+        $subscription->status = 'CANCELLED';
+        $subscription->is_active = false;
+        $subscription->cancel_reason = $reason;
+        $subscription->save();
+
+        // Send email notification
+        $adminEmail = config('paypal.admin_email', 'contact@nanybot.com');
+        // Mail::to($adminEmail)->send(new SubscriptionCancelled($subscription, $reason));
 
         return redirect()
-            ->route('subscriptions')
+            ->back()
             ->with('success', 'Subscription canceled successfully.');
     }
 
     public function suspendSubscription($subscriptionId)
     {
-        // Suspend the subscription
+        // Suspend the subscription in PayPal
         $response = $this->provider->suspendSubscription($subscriptionId, 'Suspended by user');
 
-        // Update subscription status in your database
-        // ... your code to update subscription status ...
+        // Update subscription status in database
+        $subscription = Subscription::where('transac_id', $subscriptionId)->firstOrFail();
+        $subscription->status = 'SUSPENDED';
+        $subscription->is_active = false;
+        $subscription->save();
 
         return redirect()
-            ->route('subscriptions')
+            ->back()
             ->with('success', 'Subscription suspended successfully.');
     }
 
     public function reactivateSubscription($subscriptionId)
     {
-        // Reactivate the subscription
+        // Reactivate the subscription in PayPal
         $response = $this->provider->activateSubscription($subscriptionId, 'Reactivated by user');
 
-        // Update subscription status in your database
-        // ... your code to update subscription status ...
+        // Update subscription status in database
+        $subscription = Subscription::where('transac_id', $subscriptionId)->firstOrFail();
+        $subscription->status = 'ACTIVE';
+        $subscription->is_active = true;
+        $subscription->save();
+
+        //return $subscription;
 
         return redirect()
-            ->route('subscriptions')
+            ->back()
             ->with('success', 'Subscription reactivated successfully.');
+    }
+
+    // method to list all subscriptions for the current user
+    public function listSubscriptions($userId)
+    {
+        $subscriptions = Subscription::where('user_id', $userId)->orderBy('created_at', 'desc')->get();
+
+        return view('paypal.subscriptions', ['subscriptions' => $subscriptions]);
     }
 
 

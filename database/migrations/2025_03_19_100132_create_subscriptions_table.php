@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
             $table->string('user_id')->nullable(); // because it's not the laravel app's user_id, rather userId from external app is used for payment.
-            $table->string('transac_id')->nullable();
+            $table->string('transac_id')->nullable(); // transac_id is the subscription id in case of recurring payment
             $table->string('package_code')->nullable();
             $table->string('payer_email')->nullable();
             $table->string('payer_id')->nullable();
