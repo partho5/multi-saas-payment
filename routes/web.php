@@ -39,10 +39,6 @@ Route::post('suspend-subscription/{subscriptionId}', [PayPalController::class, '
 Route::post('reactivate-subscription/{subscriptionId}', [PayPalController::class, 'reactivateSubscription'])->name('reactivateSubscription');
 
 
-
-//Route::get('/paypal/subscription', [PayPalController::class, 'createSubscription'])->name('paypal.subscription');
-//Route::get('/paypal/success', [PayPalController::class, 'success'])->name('paypal.success');
-//Route::get('/paypal/cancel', [PayPalController::class, 'cancel'])->name('paypal.cancel');
-
-Route::get('/test', [HomeController::class, 'sendMail']);
+// PayPal web-hook
+Route::post('api/webhooks/paypal', [\App\Http\Controllers\Payment\Paypal\PayPalController::class, 'handleWebhook']);
 

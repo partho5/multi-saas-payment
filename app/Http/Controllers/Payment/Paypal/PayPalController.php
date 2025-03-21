@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use Carbon\Carbon;
 
@@ -350,10 +351,10 @@ class PayPalController extends Controller
             "subscriptionId" => $subscription['id']
         ];
 
-        $response = $this->sendTransaction($data);
+        $this->sendTransaction($data);
 
         // save subscription data, will be needed to manage/cancel/suspend subscription
-        $subId = $this->saveSubscription($data);
+        $this->saveSubscription($data);
 
         // call api to send mail
         $this->sendPaymentInvoiceMail($data);
@@ -574,5 +575,141 @@ class PayPalController extends Controller
         // Return the response
         return response()->json($response->json(), $response->status());
     }
+
+
+
+    /********************************
+     * web-hook
+     ********************************/
+
+    public function handleWebhook(Request $request)
+    {
+        // Get the payload
+        $payload = json_decode($request->getContent(), true);
+        $event = $payload['event_type'] ?? '';
+
+        // Log the full webhook for debugging
+        Log::info('PayPal webhook received', [
+            'event' => $event,
+            'payload' => $payload
+        ]);
+
+        try {
+            /*
+             * from paypal dashboard select these events: Billing subscription activated, Payment capture completed, Payment sale completed
+             * */
+            switch ($event) {
+                case 'PAYMENT.CAPTURE.COMPLETED':
+                    return $this->handlePaymentCaptureCompleted($payload);
+
+                case 'PAYMENT.SALE.COMPLETED':
+                    return $this->handlePaymentSaleCompleted($payload);
+
+                case 'BILLING.SUBSCRIPTION.ACTIVATED':
+                    return $this->handleSubscriptionActivated($payload);
+
+                case 'BILLING.SUBSCRIPTION.RENEWED':
+                    return $this->handleSubscriptionRenewed($payload);
+
+                case 'BILLING.SUBSCRIPTION.PAYMENT.SUCCEEDED':
+                    return $this->handleSubscriptionPaymentSucceeded($payload);
+
+                default:
+                    Log::info('Unhandled PayPal event', ['event' => $event]);
+                    return response()->json(['success' => true, 'message' => 'Webhook received']);
+            }
+        } catch (\Exception $e) {
+            Log::error('PayPal webhook error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    protected function handlePaymentCaptureCompleted($payload)
+    {
+        $resource = $payload['resource'] ?? [];
+        $supplementaryData = $resource['supplementary_data']['related_ids'] ?? [];
+        $orderId = $supplementaryData['order_id'] ?? null;
+
+        Log::info('One-time payment captured', [
+            'order_id' => $orderId,
+            'transaction_id' => $resource['id'] ?? null,
+            'amount' => $resource['amount']['value'] ?? 0,
+            'status' => $resource['status'] ?? ''
+        ]);
+
+        // TODO: Handle one-time payment logic
+
+        return response()->json(['success' => true, 'message' => 'Payment captured']);
+    }
+
+    protected function handlePaymentSaleCompleted($payload)
+    {
+        $resource = $payload['resource'] ?? [];
+        $subscriptionId = $resource['billing_agreement_id'] ?? null;
+
+        Log::info('Subscription payment sale completed', [
+            'subscription_id' => $subscriptionId,
+            'transaction_id' => $resource['id'] ?? null,
+            'amount' => $resource['amount']['total'] ?? 0,
+            'status' => $resource['state'] ?? ''
+        ]);
+
+        // TODO: Handle subscription payment logic
+
+        return response()->json(['success' => true, 'message' => 'Subscription payment processed']);
+    }
+
+    protected function handleSubscriptionActivated($payload)
+    {
+        $resource = $payload['resource'] ?? [];
+        $subscriptionId = $resource['id'] ?? null;
+
+        Log::info('Subscription activated', [
+            'subscription_id' => $subscriptionId,
+            'plan_id' => $resource['plan_id'] ?? null,
+            'customer_email' => $resource['subscriber']['email_address'] ?? null,
+            'next_billing_date' => $resource['billing_info']['next_billing_time'] ?? null
+        ]);
+
+        // TODO: Handle subscription activation logic
+
+        return response()->json(['success' => true, 'message' => 'Subscription activated']);
+    }
+
+    protected function handleSubscriptionRenewed($payload)
+    {
+        $resource = $payload['resource'] ?? [];
+        $subscriptionId = $resource['id'] ?? null;
+
+        Log::info('Subscription renewed', [
+            'subscription_id' => $subscriptionId,
+            'status' => $resource['status'] ?? '',
+            'next_billing_time' => $resource['billing_info']['next_billing_time'] ?? null
+        ]);
+
+        // TODO: Handle subscription renewal logic
+
+        return response()->json(['success' => true, 'message' => 'Subscription renewed']);
+    }
+
+    protected function handleSubscriptionPaymentSucceeded($payload)
+    {
+        $resource = $payload['resource'] ?? [];
+        $subscriptionId = $resource['id'] ?? null;
+
+        Log::info('Subscription payment succeeded', [
+            'subscription_id' => $subscriptionId,
+            'amount' => $resource['billing_info']['last_payment']['amount']['value'] ?? 0,
+            'currency' => $resource['billing_info']['last_payment']['amount']['currency_code'] ?? '',
+            'time' => $resource['billing_info']['last_payment']['time'] ?? ''
+        ]);
+
+        // TODO: Handle subscription payment success logic
+
+        return response()->json(['success' => true, 'message' => 'Subscription payment successful']);
+    }
+
+
+
 
 }
